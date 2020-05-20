@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using SolrDocumentExtractor.DataAccess;
 using SolrDocumentExtractor.Processing;
@@ -13,6 +14,7 @@ namespace SolrDocumentExtractor
             var documents = await SolrGateway.GetDocumentsFromSolr(start, pageSize);
 
             SolrDocumentProcessor.ProcessDocuments(documents);
+            Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
         }
 
         static async Task Main(string[] args)
