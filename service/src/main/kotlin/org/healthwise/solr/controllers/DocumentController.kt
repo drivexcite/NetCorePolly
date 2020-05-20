@@ -12,10 +12,11 @@ import java.util.concurrent.atomic.AtomicLong
 
 @RestController
 class DocumentsController {
+    val counter = AtomicInteger()
 
     @GetMapping("/documents")
     suspend fun getDocuments(@RequestParam(required = false, defaultValue = "0") skip: Int = 0, @RequestParam(required = false, defaultValue = "100") top: Int = 100) : ResponseEntity<LegacyDocumentResponse>  {
-        delay(100)
+        delay(60)
 
         val items = (1..top).map {
             LegacyDocument(
@@ -25,6 +26,6 @@ class DocumentsController {
             )
         }.toList()
 
-        return ResponseEntity.ok(LegacyDocumentResponse(items, skip, top, 50_000))
+        return ResponseEntity.ok(LegacyDocumentResponse(items, skip, top, 20_000))
     }
 }

@@ -29,21 +29,27 @@ namespace SolrDocumentExtractor
             return documents;
         }
 
-        static async Task Main(string[] args)
+        static async Task Main()
         {
             var numberOfDocuments = await SolrGateway.GetAvailableDocumentsFromSolr();
-            var pageSize = 100;
+            const int pageSize = 100;
 
             var pages = (int)Math.Ceiling(numberOfDocuments / (decimal)pageSize);
 
             var stopWatch = new Stopwatch();
             stopWatch.Start();
 
+            var completedSuccessfully = 0;
+
             for (var page = 0; page < pages; page++)
             {
                 var currentPage = page;
                 await ProcessSolrDocuments(currentPage, pageSize);
+
+                completedSuccessfully++;
             }
+
+            Console.WriteLine($"Completed successfully: {completedSuccessfully}");
 
             Console.WriteLine($"Execution finished in: {stopWatch.Elapsed}");
             stopWatch.Stop();

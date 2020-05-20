@@ -14,11 +14,11 @@ namespace SolrDocumentExtractor.DataAccess
 
         public static async Task<List<LegacyDocument>> GetDocumentsFromSolr(int start, int rows)
         {
-            var queryString = $"http://localhost:8080/documents?skip={start}&top={rows}";
-            var response = await HttpClient.GetAsync(queryString);
+            var url = $"http://localhost:8080/documents?skip={start}&top={rows}";
+            var response = await HttpClient.GetAsync(url);
 
             if(!response.IsSuccessStatusCode)
-                throw new InvalidSolrResponseException($"The server responded with: {response.StatusCode}");
+                throw new InvalidSolrResponseException($"The server responded with: {response.StatusCode} for {url}");
 
             var responseJson = JToken.Parse(await response.Content.ReadAsStringAsync());
 
@@ -30,8 +30,8 @@ namespace SolrDocumentExtractor.DataAccess
 
         public static async Task<int> GetAvailableDocumentsFromSolr()
         {
-            var queryString = $"http://localhost:8080/documents?skip=0&top=0";
-            var response = await HttpClient.GetAsync(queryString);
+            var url = $"http://localhost:8080/documents?skip=0&top=0";
+            var response = await HttpClient.GetAsync(url);
             var responseJson = JToken.Parse(await response.Content.ReadAsStringAsync());
 
             return responseJson["available"].Value<int>();
