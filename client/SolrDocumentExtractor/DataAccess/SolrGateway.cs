@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using SolrDocumentExtractor.Dtos;
+using SolrDocumentExtractor.Exceptions;
 
 namespace SolrDocumentExtractor.DataAccess
 {
@@ -15,6 +16,10 @@ namespace SolrDocumentExtractor.DataAccess
         {
             var queryString = $"http://localhost:8080/documents?skip={start}&top={rows}";
             var response = await HttpClient.GetAsync(queryString);
+
+            if(!response.IsSuccessStatusCode)
+                throw new InvalidSolrResponseException($"The server responded with: {response.StatusCode}");
+
             var responseJson = JToken.Parse(await response.Content.ReadAsStringAsync());
 
             return (
