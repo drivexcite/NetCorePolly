@@ -7,6 +7,14 @@ namespace SolrDocumentExtractor
 {
     class Program
     {
+        public static async Task ProcessSolrDocuments(int page, int pageSize)
+        {
+            var start = page * pageSize;
+            var documents = await SolrGateway.GetDocumentsFromSolr(start, pageSize);
+
+            SolrDocumentProcessor.ProcessDocuments(documents);
+        }
+
         static async Task Main(string[] args)
         {
             var numberOfDocuments = await SolrGateway.GetAvailableDocumentsFromSolr();
@@ -16,10 +24,7 @@ namespace SolrDocumentExtractor
 
             for (var page = 0; page < pages; page++)
             {
-                var start = page * pageSize;
-                var documents = await SolrGateway.GetDocumentsFromSolr(start, pageSize);
-
-                SolrDocumentProcessor.ProcessDocuments(documents);
+                await ProcessSolrDocuments(page, pageSize);
             }
         }
     }
