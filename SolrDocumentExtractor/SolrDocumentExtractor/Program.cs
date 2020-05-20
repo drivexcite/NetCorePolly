@@ -4,15 +4,16 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using SolrDocumentExtractor.DataAccess;
+using SolrDocumentExtractor.Dtos;
 using SolrDocumentExtractor.Processing;
 
 namespace SolrDocumentExtractor
 {
     class Program
     {
-        public static async Task ProcessSolrDocuments(int page, int pageSize)
+        public static async Task<List<LegacyDocument>> ProcessSolrDocuments(int page, int pageSize)
         {
-            Console.WriteLine($"Starting downloading documents from page {page} on thread {Thread.CurrentThread.ManagedThreadId}.");
+            Console.WriteLine($"Starting downloading documents from page {page + 1} on thread {Thread.CurrentThread.ManagedThreadId}.");
 
             var stopWatch = new Stopwatch();
             var start = page * pageSize;
@@ -23,7 +24,9 @@ namespace SolrDocumentExtractor
             SolrDocumentProcessor.ProcessDocuments(documents);
 
             stopWatch.Stop();
-            Console.WriteLine($"Completed downloading documents from page {page} on thread {Thread.CurrentThread.ManagedThreadId}. Elapsed: {stopWatch.Elapsed}");
+            Console.WriteLine($"Completed downloading documents from page {page + 1} on thread {Thread.CurrentThread.ManagedThreadId}. Elapsed: {stopWatch.Elapsed}");
+
+            return documents;
         }
 
         static async Task Main(string[] args)
@@ -31,16 +34,19 @@ namespace SolrDocumentExtractor
             var numberOfDocuments = await SolrGateway.GetAvailableDocumentsFromSolr();
             var pageSize = 100;
 
-            var pages = Math.Ceiling(numberOfDocuments / (decimal)pageSize);
+            var pages = (int)Math.Ceiling(numberOfDocuments / (decimal)pageSize);
 
-            var tasks = new List<Task>();
+            var stopWatch = new Stopwatch();
+            stopWatch.Start();
 
             for (var page = 0; page < pages; page++)
             {
-                tasks.Add(ProcessSolrDocuments(page, pageSize));
+                var currentPage = page;
+                await ProcessSolrDocuments(currentPage, pageSize);
             }
 
-            await Task.WhenAll(tasks);
+            Console.WriteLine($"Execution finished in: {stopWatch.Elapsed}");
+            stopWatch.Stop();
         }
     }
 }

@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using SolrDocumentExtractor.Dtos;
 
@@ -11,7 +11,8 @@ namespace SolrDocumentExtractor.Processing
         {
             foreach (var legacyDocument in documents)
             {
-                File.AppendAllText("LegacyDocuments.txt", $"{JsonConvert.SerializeObject(legacyDocument)}\n");
+                var json = JsonConvert.SerializeObject(legacyDocument);
+                //Console.WriteLine(json);
             }
         }
     }
