@@ -4,13 +4,13 @@ namespace SolrDocumentExtractor.Dtos
 {
     public class LegacyDocument
     {
-        [JsonProperty("Hwid")]
+        [JsonProperty("hwid")]
         public string Hwid { get; set; }
 
-        [JsonProperty("Title_en_us_s")]
+        [JsonProperty("title")]
         public string Title { get; set; }
 
-        [JsonProperty("Rank")]
+        [JsonProperty("rank")]
         public string Rank { get; set; }
     }
 }
