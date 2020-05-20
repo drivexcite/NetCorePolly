@@ -33,10 +33,14 @@ namespace SolrDocumentExtractor
 
             var pages = Math.Ceiling(numberOfDocuments / (decimal)pageSize);
 
+            var tasks = new List<Task>();
+
             for (var page = 0; page < pages; page++)
             {
-                await ProcessSolrDocuments(page, pageSize);
+                tasks.Add(ProcessSolrDocuments(page, pageSize));
             }
+
+            await Task.WhenAll(tasks);
         }
     }
 }
