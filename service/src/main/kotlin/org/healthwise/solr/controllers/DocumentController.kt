@@ -13,7 +13,10 @@ import java.util.concurrent.atomic.AtomicLong
 @RestController
 class DocumentsController {
     @GetMapping("/documents")
-    suspend fun getDocuments(@RequestParam(required = false, defaultValue = "0") skip: Int = 0, @RequestParam(required = false, defaultValue = "100") top: Int = 100) : ResponseEntity<LegacyDocumentResponse>  {
+    suspend fun getDocuments(
+            @RequestParam(required = false, defaultValue = "0") skip: Int = 0,
+            @RequestParam(required = false, defaultValue = "100") top: Int = 100
+    ) : ResponseEntity<LegacyDocumentResponse>  {
         delay(60)
 
         val items = (1..top).map {
