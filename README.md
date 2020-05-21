@@ -1,4 +1,4 @@
-# Boundded Concurrency and Resiliency for .NET Apps
+# Bounded Concurrency and Resiliency for .NET Apps
 
 Thi repository is intended to provide a starting point to implement concurrency and resiliency strategies for .NET async tasks. 
 It includes two projects, a server and a client.
