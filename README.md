@@ -84,5 +84,39 @@ await Task.WhenAll(tasks);
 
 Notice that the code that implements the actual work doesn't need to be aware that is executing in parallel.
 
+## Policy composition.
 
+Even though, there is not a lot of diference in terms of code, Polly allows for a better encapsulation of the concurrency control concerns. But an even better advantage of Polly is the fact that policies can be composable, in terms of Polly, wrapped around other policies. 
 
+Concurrency is only useful if the tasks complete successfully. So far, the fact that the server responds with success 100% of the time, has been part of the design of this scenario. If we were to artificially inject faults (503 responses from the server), the code that process the documents would throw an `InvalidSolrResponseException`. Since every task is executed in parallel, we would only get an unhandled exception only after all the other tasks finish execution. This would be totally unacceptable in any kind of seriuous production code.
+
+So the first major change in the code would be to catch an exception propagated by `Task.WhenAll`:
+```csharp
+try
+{
+    await Task.WhenAll(tasks);
+}
+catch
+{
+    Console.WriteLine("Exceptions!");
+}
+```
+
+And then, we would have to inject retry logic in case of any individual operation failing. This code can be highly complex, depending on the numer of retries, if there are configurable waits between retries, etc. But fortunately, Polly provides a very elegant solution to declare another policy to handle retry logic with very few lines of code, and then compose an existing policy so that not only the code would be completely unaware of the logic for concurrency control, it would also be completely unaware of any connection resiliency concerns:
+
+```csharp
+var retryPolicy = Policy
+    .Handle<InvalidSolrResponseException>()
+    .WaitAndRetryAsync(
+        new TimeSpan[]
+        {
+            TimeSpan.FromMilliseconds(50),
+            TimeSpan.FromMilliseconds(80),
+            TimeSpan.FromMilliseconds(120)
+        }
+    );
+
+var concurrentExecutionPolicy = Policy
+    .BulkheadAsync(10, pages)
+    .WrapAsync(retryPolicy);
+```
